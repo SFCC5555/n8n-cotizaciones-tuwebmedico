@@ -147,15 +147,15 @@ const html = `
     <p><b>Mantenimiento (opcional):</b> ${mantenimiento}</p>${resumen}
     <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>
       <a href="${q.propuesta}" style="color:#0f766e">${q.propuesta}</a></p>
-    <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp, citando el código ${q.codigo}.</p>
-    <p style="margin-top:24px;margin-bottom:12px">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
-    <!-- Botón «a prueba de correos»: una tabla con fondo, porque muchos clientes ignoran el padding de los enlaces. -->
-    <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:separate"><tr>
+    <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp:</p>
+    <!-- Botón «a prueba de correos»: una tabla con fondo, porque muchos clientes ignoran el padding de los enlaces.
+         Lleva el código de la cotización ya escrito en el mensaje. -->
+    <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="border-collapse:separate;margin:4px auto 0"><tr>
       <td bgcolor="#1f9d55" style="background:#1f9d55;border-radius:999px">
-        <a href="${whatsapp}" style="display:inline-block;padding:10px 20px;color:#ffffff;font-weight:bold;font-size:14px;text-decoration:none">Escribir por WhatsApp</a>
+        <a href="${whatsapp}" style="display:inline-block;padding:11px 24px;color:#ffffff;font-weight:bold;font-size:14px;text-decoration:none">Escribir por WhatsApp</a>
       </td>
     </tr></table>
-    <p style="font-size:13px;color:#5b6f77;margin-top:8px">+593 99 571 4425</p>
+    <p style="margin-top:28px;margin-bottom:0">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
     <hr style="border:none;border-top:1px solid ${borde};margin:28px 0">
     <h2 style="font-size:18px;margin-top:0">Borrador del contrato</h2>
     <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
@@ -182,7 +182,7 @@ const texto = [
   `Precio garantizado hasta el ${valida}.`,
   "El borrador del contrato va en la versión HTML de este correo.",
   `Tu propuesta: ${q.propuesta}`,
-  `WhatsApp: +593 99 571 4425 · Fernando Carrasco, tuwebmedico.com`,
+  `WhatsApp: https://wa.me/593995714425 · Fernando Carrasco, tuwebmedico.com`,
 ].filter(Boolean).join("\n");
 
 return {
