@@ -18,7 +18,7 @@ Next.js  POST /api/cotizacion     valida, recalcula precios en el servidor, crea
 n8n  Webhook (Header Auth)
    → Code «Armar correo»          HTML y texto del correo (escapa lo que escribe el usuario)
    → Google Sheets «Registrar»    una fila por cotización · 3 reintentos · si falla, detiene el flujo
-   → HTTP «Enviar (Resend)»       correo al doctor (respuestas y copia oculta a mi correo) · 2 reintentos · Idempotency-Key
+   → HTTP «Enviar (Resend)»       correo al doctor (respuestas a contacto@tuwebmedico.com y copia oculta a mi correo) · 2 reintentos · Idempotency-Key
         ├─ éxito → Slack «Aviso»  (bot con solo chat:write) → responde { ok: true }
         └─ error → Slack «Alerta» (2 reintentos)            → responde { ok: false } → el sitio ofrece WhatsApp
 Workflow «Alertas»: Error Trigger → Slack, con el nodo que falló, el error y el enlace a la ejecución.

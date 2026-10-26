@@ -212,7 +212,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"from\": \"Fernando Carrasco <cotizaciones@tuwebmedico.com>\",\n  \"to\": [\"{{ $('Armar correo').item.json.correo }}\"],\n  \"reply_to\": \"sfcc.5555@gmail.com\",\n  \"bcc\": [\"sfcc.5555@gmail.com\"],\n  \"subject\": \"{{ $('Armar correo').item.json.asunto }}\",\n  \"html\": {{ JSON.stringify($('Armar correo').item.json.html) }},\n  \"text\": {{ JSON.stringify($('Armar correo').item.json.texto) }}\n}",
+        "jsonBody": "={\n  \"from\": \"Fernando Carrasco <cotizaciones@tuwebmedico.com>\",\n  \"to\": [\"{{ $('Armar correo').item.json.correo }}\"],\n  \"reply_to\": \"contacto@tuwebmedico.com\",\n  \"bcc\": [\"sfcc.5555@gmail.com\"],\n  \"subject\": \"{{ $('Armar correo').item.json.asunto }}\",\n  \"html\": {{ JSON.stringify($('Armar correo').item.json.html) }},\n  \"text\": {{ JSON.stringify($('Armar correo').item.json.texto) }}\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
