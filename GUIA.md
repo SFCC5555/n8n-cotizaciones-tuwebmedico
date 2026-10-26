@@ -76,6 +76,8 @@ esa parte, y antes de fijar los datos (Pin) edítalos para borrar `headers`: los
 (**Pin data** los deja fijos mientras pruebas).
 
 ### 2.2 Code «Armar correo»
+El encabezado usa el logo publicado con la web (`public/email/logo.png`, PNG porque Gmail no muestra SVG ni fuentes web;
+en doble resolución para pantallas nítidas). Si el correo bloquea imágenes, se ve el texto alternativo en turquesa.
 Mode: **Run Once for Each Item**. Este nodo arma el correo. Se escapa el nombre antes de meterlo en el HTML: es texto
 que escribió una persona y podría traer etiquetas. El contrato (`contratoHtml`) no se escapa porque lo arma tu propio
 servidor con el componente del contrato, no lo escribe el usuario.
@@ -113,6 +115,14 @@ const resumen = mt.tipo === "despues" ? "" : `
 
 const html = `
 <div style="font-family:Arial,sans-serif;max-width:560px;color:#12232b;line-height:1.5">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:20px">
+    <tr><td bgcolor="#15252f" style="background:#15252f;border-radius:12px;padding:18px 22px">
+      <a href="https://tuwebmedico.com" style="text-decoration:none">
+        <img src="https://tuwebmedico.com/email/logo.png" width="250" height="36" alt="tuwebmedico.com"
+          style="display:block;border:0;width:250px;height:36px;color:#5eead4;font-size:20px;font-weight:bold">
+      </a>
+    </td></tr>
+  </table>
   <p>${saludo}</p>
   <p>Esta es la cotización del paquete que armaste para tu página de ${escapar(q.especialidad.toLowerCase())}.</p>
   <p style="font-size:13px;color:#5b6f77">Código: <b>${q.codigo}</b></p>
@@ -127,7 +137,8 @@ const html = `
   <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>
     <a href="${q.propuesta}">${q.propuesta}</a></p>
   <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp al +593 99 571 4425, citando el código ${q.codigo}.</p>
-  <p>Fernando Carrasco<br>Desarrollador de software · tuwebmedico.com</p>
+  <p style="margin-top:24px">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span><br>
+    <a href="https://tuwebmedico.com" style="color:#0f766e;text-decoration:none;font-weight:bold">tuwebmedico.com</a></p>
   <hr style="border:none;border-top:1px solid #d6e0e2;margin:28px 0">
   <h2 style="font-size:18px">Borrador del contrato</h2>
   <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
