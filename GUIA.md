@@ -187,6 +187,7 @@ return {
   "from": "Fernando Carrasco <cotizaciones@tuwebmedico.com>",
   "to": ["{{ $('Armar correo').item.json.correo }}"],
   "reply_to": "sfcc.5555@gmail.com",
+  "bcc": ["sfcc.5555@gmail.com"],
   "subject": "{{ $('Armar correo').item.json.asunto }}",
   "html": {{ JSON.stringify($('Armar correo').item.json.html) }},
   "text": {{ JSON.stringify($('Armar correo').item.json.texto) }}
@@ -194,6 +195,7 @@ return {
 ```
 
   *`JSON.stringify` escapa las comillas y los saltos de línea del HTML; sin él, el JSON se rompe.*
+  *`reply_to`: si el doctor responde, la respuesta llega a tu correo. `bcc`: recibes una copia oculta de cada cotización.*
 - Settings: **Retry On Fail** = on, Max Tries `2`, Wait `3000` ms · **On Error: Continue (using error output)**.
   *Con esto el nodo tiene dos salidas: la de éxito y la de error. Así decidimos qué hacer si el correo falla, en vez de
   que el flujo se detenga.*

@@ -5,6 +5,9 @@ médicos. En la propuesta comercial, el doctor arma su paquete de módulos y pid
 instante con **precio garantizado por 30 días**, el mantenimiento que eligió y el **borrador del contrato** con esos
 mismos módulos y precios.
 
+**Pruébalo en vivo:** en [tuwebmedico.com/plastica/propuesta](https://tuwebmedico.com/plastica/propuesta) arma un paquete en
+la calculadora y pide la cotización; te llega en segundos.
+
 ```
 Calculadora (navegador)
    │  correo + módulos + mantenimiento
@@ -15,7 +18,7 @@ Next.js  POST /api/cotizacion     valida, recalcula precios en el servidor, crea
 n8n  Webhook (Header Auth)
    → Code «Armar correo»          HTML y texto del correo (escapa lo que escribe el usuario)
    → Google Sheets «Registrar»    una fila por cotización · 3 reintentos · si falla, detiene el flujo
-   → HTTP «Enviar (Resend)»       correo al doctor · 2 reintentos · Idempotency-Key = código de la cotización
+   → HTTP «Enviar (Resend)»       correo al doctor (respuestas y copia oculta a mi correo) · 2 reintentos · Idempotency-Key
         ├─ éxito → Slack «Aviso»  (bot con solo chat:write) → responde { ok: true }
         └─ error → Slack «Alerta» (2 reintentos)            → responde { ok: false } → el sitio ofrece WhatsApp
 Workflow «Alertas»: Error Trigger → Slack, con el nodo que falló, el error y el enlace a la ejecución.
@@ -39,4 +42,4 @@ Workflow «Alertas»: Error Trigger → Slack, con el nodo que falló, el error 
 - `n8n/cotizaciones.json` y `n8n/alertas.json`: los flujos exportados de n8n (sin credenciales ni datos de prueba).
 - `GUIA.md`: cómo construir el flujo nodo por nodo.
 
-Hecho por Fernando Carrasco · desarrollador full-stack · [LinkedIn y portafolio en mi perfil de GitHub](https://github.com/SFCC5555)
+Hecho por Fernando Carrasco · desarrollador full-stack · [Portafolio](https://www.fernando-carrasco.com/) · [LinkedIn](https://www.linkedin.com/in/fernando-carrasco-dev/)
