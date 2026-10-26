@@ -1,0 +1,73 @@
+{
+  "name": "Alertas",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "edb92062-ccc8-4415-b10b-054c3b8b876b",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CBP5NHJBH",
+          "mode": "id"
+        },
+        "text": "=🚨 Falló el flujo «{{ $json.workflow.name }}» en el nodo «{{ $json.execution.lastNodeExecuted }}»: {{ $json.execution.error.message }} Ver la ejecución: {{ $json.execution.url }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bf0f0b99-30cb-4b8b-a376-71bb17ccd5cc",
+      "name": "Aviso fallo",
+      "webhookId": "09fde0cb-3382-4b17-bffe-948f33e342db",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "credentials": {
+        "slackApi": {
+          "id": "x4WhIoCOaFyianUA",
+          "name": "Slack bot cotizaciones"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Aviso fallo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d367846c-7e5b-4ea3-b7f5-44c439b5df8f",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "zV7w1xBA40ii7Cco",
+  "tags": []
+}

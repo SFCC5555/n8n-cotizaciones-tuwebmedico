@@ -1,0 +1,423 @@
+{
+  "name": "Cotizaciones",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cotizacion",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b87ab00d-6ef5-4e4b-8cfa-06f9e20787b2",
+      "name": "Webhook",
+      "webhookId": "39a2cf44-f10f-4651-bbb7-a57fe8d557f1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1n9VMn8eFVuAC6RY",
+          "name": "Clave webhook cotizaciones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const q = $json.body;\n\nconst escapar = (s) => String(s).replace(/[&<>\"']/g, (c) => ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c]);\nconst dinero = (n) => \"$\" + String(n).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \".\");\nconst fecha = (iso) => new Date(iso).toLocaleDateString(\"es-EC\", { day: \"numeric\", month: \"long\", year: \"numeric\", timeZone: \"America/Guayaquil\" });\n\nconst saludo = q.nombre ? `Hola, ${escapar(q.nombre)}:` : \"Hola:\";\nconst valida = fecha(q.validaHasta);\nconst filas = q.modulos\n  .map((m) => `<tr><td style=\"padding:6px 0\">Módulo ${m.id} · ${escapar(m.nombre)}</td><td style=\"padding:6px 0;text-align:right\">${dinero(m.precio)}</td></tr>`)\n  .join(\"\");\nconst descuento = q.descuentoPorcentaje > 0\n  ? `<tr><td style=\"padding:6px 0\">Descuento por paquete (${q.descuentoPorcentaje} %)</td><td style=\"padding:6px 0;text-align:right\">−${dinero(q.ahorro)}</td></tr>`\n  : \"\";\n\n// Mantenimiento: el primer mes va incluido; lo elegido cubre desde el segundo mes.\nconst mt = q.mantenimiento;\nconst mantenimiento =\n  mt.tipo === \"mensual\" ? `Mensual por ${mt.meses === 1 ? \"1 mes\" : `${mt.meses} meses`}, desde el segundo mes: ${mt.meses} × ${dinero(mt.mensual)} = ${dinero(mt.total)}, facturados mes a mes.`\n  : mt.tipo === \"anual\" ? `Anual, el resto del primer año (del segundo mes al aniversario): ${dinero(mt.total)} en vez de ${dinero(mt.mensual * mt.meses)} mes a mes. Ahorras ${dinero(mt.ahorro)}: 2 meses gratis y el valor del hosting, que el primer año ya va incluido.`\n  : `El primer mes después de la entrega va incluido. Al terminarlo decides si lo sigues pagando (${dinero(mt.mensual)} al mes) o no.`;\n// Subtotales: desarrollo y mantenimiento se pagan en momentos distintos, así que se muestran por separado.\nconst resumen = mt.tipo === \"despues\" ? \"\" : `\n  <table style=\"width:100%;border-collapse:collapse;margin:8px 0\">\n    <tr><td style=\"padding:4px 0\">Desarrollo</td><td style=\"padding:4px 0;text-align:right\">${dinero(q.total)}</td></tr>\n    <tr><td style=\"padding:4px 0\">Mantenimiento</td><td style=\"padding:4px 0;text-align:right\">${dinero(mt.total)}</td></tr>\n    <tr><td style=\"padding:6px 0;border-top:1px solid #d6e0e2\"><b>Total</b></td><td style=\"padding:6px 0;border-top:1px solid #d6e0e2;text-align:right\"><b>${dinero(q.totalConMantenimiento)}</b></td></tr>\n  </table>\n  <p style=\"font-size:13px;color:#5b6f77\">El desarrollo se paga 50 % al empezar y 50 % al entregar; el mantenimiento, desde el segundo mes después de la entrega.</p>`;\n\nconst html = `\n<div style=\"font-family:Arial,sans-serif;max-width:560px;color:#12232b;line-height:1.5\">\n  <p>${saludo}</p>\n  <p>Esta es la cotización del paquete que armaste para tu página de ${escapar(q.especialidad.toLowerCase())}.</p>\n  <p style=\"font-size:13px;color:#5b6f77\">Código: <b>${q.codigo}</b></p>\n  <table style=\"width:100%;border-collapse:collapse;border-top:1px solid #d6e0e2\">${filas}${descuento}\n    <tr><td style=\"padding:10px 0;border-top:1px solid #d6e0e2\"><b>Total, IVA incluido</b></td>\n        <td style=\"padding:10px 0;border-top:1px solid #d6e0e2;text-align:right\"><b>${dinero(q.total)}</b></td></tr>\n  </table>\n  <p style=\"background:#e0f2ef;border-radius:8px;padding:10px 12px\">\n    <b>Precio garantizado hasta el ${valida}</b>, aunque los precios cambien en el futuro. Si en ese tiempo bajan, se aplica el menor.\n  </p>\n  <p><b>Mantenimiento (opcional):</b> ${mantenimiento}</p>${resumen}\n  <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>\n    <a href=\"${q.propuesta}\">${q.propuesta}</a></p>\n  <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp al +593 99 571 4425, citando el código ${q.codigo}.</p>\n  <p>Fernando Carrasco<br>Desarrollador de software · tuwebmedico.com</p>\n  <hr style=\"border:none;border-top:1px solid #d6e0e2;margin:28px 0\">\n  <h2 style=\"font-size:18px\">Borrador del contrato</h2>\n  <p style=\"font-size:13px;color:#5b6f77\">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>\n  ${q.contratoHtml}\n</div>`;\n\nconst texto = [\n  q.nombre ? `Hola, ${q.nombre}:` : \"Hola:\",\n  `Cotización ${q.codigo} para tu página de ${q.especialidad.toLowerCase()}:`,\n  ...q.modulos.map((m) => `- Módulo ${m.id} · ${m.nombre}: ${dinero(m.precio)}`),\n  q.descuentoPorcentaje > 0 ? `- Descuento por paquete (${q.descuentoPorcentaje} %): -${dinero(q.ahorro)}` : \"\",\n  `Total, IVA incluido: ${dinero(q.total)}`,\n  `Mantenimiento (opcional): ${mantenimiento}`,\n  mt.tipo === \"despues\" ? \"\" : `Desarrollo ${dinero(q.total)} + mantenimiento ${dinero(mt.total)} = ${dinero(q.totalConMantenimiento)}`,\n  `Precio garantizado hasta el ${valida}.`,\n  \"El borrador del contrato va en la versión HTML de este correo.\",\n  `Tu propuesta: ${q.propuesta}`,\n  `WhatsApp: +593 99 571 4425 · Fernando Carrasco, tuwebmedico.com`,\n].filter(Boolean).join(\"\\n\");\n\nreturn {\n  json: {\n    ...q,\n    modulosTexto: q.modulos.map((m) => `M${m.id}`).join(\", \"),\n    emitidaTexto: fecha(q.emitida),\n    validaHastaTexto: valida,\n    totalTexto: dinero(q.total),\n    mantenimientoTexto: mantenimiento,\n    asunto: `Tu cotización ${q.codigo} · tuwebmedico.com`,\n    html,\n    texto,\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "60805aeb-76bc-4e91-95db-8d1d59ded005",
+      "name": "Armar correo"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "ID_DE_TU_HOJA_DE_GOOGLE",
+          "mode": "list",
+          "cachedResultName": "Cotizaciones",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/ID_DE_TU_HOJA_DE_GOOGLE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/ID_DE_TU_HOJA_DE_GOOGLE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "codigo": "={{ $json.codigo }}",
+            "valida_hasta": "={{ $json.validaHastaTexto }}",
+            "emitida": "={{ $json.emitidaTexto }}",
+            "nombre": "={{ $json.nombre }}",
+            "correo": "={{ $json.correo }}",
+            "especialidad": "={{ $json.especialidad }}",
+            "modulos": "={{ $json.modulosTexto }}",
+            "precio_lista": "={{ $json.precioLista }}",
+            "descuento": "={{ $json.descuentoPorcentaje }}",
+            "total": "={{ $json.total }}",
+            "mantenimiento": "={{ $json.mantenimientoTexto }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "codigo",
+              "displayName": "codigo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emitida",
+              "displayName": "emitida",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "valida_hasta",
+              "displayName": "valida_hasta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "especialidad",
+              "displayName": "especialidad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modulos",
+              "displayName": "modulos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "precio_lista",
+              "displayName": "precio_lista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "descuento",
+              "displayName": "descuento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mantenimiento",
+              "displayName": "mantenimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "22597ba3-135b-4a88-aa2e-a0e51ad1f09e",
+      "name": "Registrar",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TZ8eSnPfYDKltY4J",
+          "name": "Google Sheets cotizaciones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Armar correo').item.json.codigo }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"from\": \"Fernando Carrasco <cotizaciones@tuwebmedico.com>\",\n  \"to\": [\"{{ $('Armar correo').item.json.correo }}\"],\n  \"reply_to\": \"sfcc.5555@gmail.com\",\n  \"subject\": \"{{ $('Armar correo').item.json.asunto }}\",\n  \"html\": {{ JSON.stringify($('Armar correo').item.json.html) }},\n  \"text\": {{ JSON.stringify($('Armar correo').item.json.texto) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d381416f-8d8b-4049-8d10-46e07732efc0",
+      "name": "Enviar (Resend)",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZOeIfGafvgr1KPlj",
+          "name": "Resend API"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CBP5NHJBH",
+          "mode": "id"
+        },
+        "text": "=Nueva cotización {{ $('Armar correo').item.json.codigo }} · {{ $('Armar correo').item.json.especialidad }} · {{ $('Armar correo').item.json.modulosTexto }} · {{ $('Armar correo').item.json.totalTexto }} · {{ $('Armar correo').item.json.correo }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        896,
+        -80
+      ],
+      "id": "3ebd5ab9-0cd1-4fce-87fa-d8d1dd0c6386",
+      "name": "Aviso",
+      "webhookId": "80a78f3e-c608-4487-be85-8d84fd3bef49",
+      "credentials": {
+        "slackApi": {
+          "id": "x4WhIoCOaFyianUA",
+          "name": "Slack bot cotizaciones"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0CBP5NHJBH",
+          "mode": "id"
+        },
+        "text": "=⚠️ No salió el correo de {{ $('Armar correo').item.json.codigo }} para {{ $('Armar correo').item.json.correo }}. Está en la hoja: escríbele por WhatsApp o reenvíala a mano.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        896,
+        112
+      ],
+      "id": "7455ba43-16f4-4e1d-b11c-9ad9fd882073",
+      "name": "Alerta",
+      "webhookId": "505e053f-3bec-43eb-97d4-8435cf7ea74d",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "slackApi": {
+          "id": "x4WhIoCOaFyianUA",
+          "name": "Slack bot cotizaciones"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"ok\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "8ae1da36-4474-4ba4-8a57-128da5719884",
+      "name": "Responder error"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"ok\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        -64
+      ],
+      "id": "34e41d6d-1786-4c4e-8b64-1593ae58ee41",
+      "name": "Responder ok"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Armar correo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar correo": {
+      "main": [
+        [
+          {
+            "node": "Registrar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar": {
+      "main": [
+        [
+          {
+            "node": "Enviar (Resend)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar (Resend)": {
+      "main": [
+        [
+          {
+            "node": "Aviso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aviso": {
+      "main": [
+        [
+          {
+            "node": "Responder ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alerta": {
+      "main": [
+        [
+          {
+            "node": "Responder error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "zV7w1xBA40ii7Cco",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d65cddf8-d58a-4972-a58b-32f91d033439",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "D8rqPor5ECmrrfyB",
+  "tags": []
+}
