@@ -116,6 +116,8 @@ const resumen = mt.tipo === "despues" ? "" : `
 // Diseño de tarjeta centrada, como la web: encabezado oscuro con el nombre a la izquierda y el logo a la derecha, y pie
 // con los datos de contacto. Tablas y estilos en línea: es lo único que respetan Gmail y Outlook.
 const borde = "#d6e0e2";
+// WhatsApp con el código ya escrito, para que el doctor no tenga que copiarlo.
+const whatsapp = `https://wa.me/593995714425?text=${encodeURIComponent(`Hola, Fernando. Le escribo por la cotización ${q.codigo}.`)}`;
 const html = `
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f6" style="background:#f3f6f6;border-collapse:collapse">
 <tr><td align="center" style="padding:24px 12px">
@@ -146,16 +148,23 @@ const html = `
     <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>
       <a href="${q.propuesta}" style="color:#0f766e">${q.propuesta}</a></p>
     <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp, citando el código ${q.codigo}.</p>
-    <p style="margin-top:24px;margin-bottom:0">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
+    <p style="margin-top:24px;margin-bottom:12px">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
+    <!-- Botón «a prueba de correos»: una tabla con fondo, porque muchos clientes ignoran el padding de los enlaces. -->
+    <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:separate"><tr>
+      <td bgcolor="#1f9d55" style="background:#1f9d55;border-radius:999px">
+        <a href="${whatsapp}" style="display:inline-block;padding:10px 20px;color:#ffffff;font-weight:bold;font-size:14px;text-decoration:none">Escribir por WhatsApp</a>
+      </td>
+    </tr></table>
+    <p style="font-size:13px;color:#5b6f77;margin-top:8px">+593 99 571 4425</p>
     <hr style="border:none;border-top:1px solid ${borde};margin:28px 0">
     <h2 style="font-size:18px;margin-top:0">Borrador del contrato</h2>
     <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
     ${q.contratoHtml}
   </td></tr>
   <tr><td bgcolor="#f7f9f9" style="background:#f7f9f9;border-top:1px solid ${borde};border-radius:0 0 13px 13px;padding:16px 24px;font-size:13px;color:#5b6f77;text-align:center">
-    <a href="https://tuwebmedico.com" style="color:#0f766e;font-weight:bold;text-decoration:none">tuwebmedico.com</a><br>
-    <a href="mailto:contacto@tuwebmedico.com" style="color:#5b6f77">contacto@tuwebmedico.com</a><br>
-    <a href="https://wa.me/593995714425" style="color:#5b6f77">WhatsApp +593 99 571 4425</a><br>
+    <span style="white-space:nowrap"><a href="https://tuwebmedico.com" style="color:#0f766e;font-weight:bold;text-decoration:none">tuwebmedico.com</a></span>
+    &nbsp;·&nbsp;
+    <span style="white-space:nowrap"><a href="mailto:contacto@tuwebmedico.com" style="color:#5b6f77">contacto@tuwebmedico.com</a></span><br>
     <span style="font-size:12px">Páginas web para cirujanos y médicos en Ecuador</span>
   </td></tr>
 </table>
