@@ -76,7 +76,7 @@ esa parte, y antes de fijar los datos (Pin) edítalos para borrar `headers`: los
 (**Pin data** los deja fijos mientras pruebas).
 
 ### 2.2 Code «Armar correo»
-El encabezado usa el logo publicado con la web (`public/email/logo.png`, PNG porque Gmail no muestra SVG ni fuentes web;
+El encabezado usa el nombre y el logo publicados con la web (`public/email/wordmark.png` e `icon.png`, PNG porque Gmail no muestra SVG ni fuentes web;
 en doble resolución para pantallas nítidas). Si el correo bloquea imágenes, se ve el texto alternativo en turquesa.
 Mode: **Run Once for Each Item**. Este nodo arma el correo. Se escapa el nombre antes de meterlo en el HTML: es texto
 que escribió una persona y podría traer etiquetas. El contrato (`contratoHtml`) no se escapa porque lo arma tu propio
@@ -113,37 +113,54 @@ const resumen = mt.tipo === "despues" ? "" : `
   </table>
   <p style="font-size:13px;color:#5b6f77">El desarrollo se paga 50 % al empezar y 50 % al entregar; el mantenimiento, desde el segundo mes después de la entrega.</p>`;
 
+// Diseño de tarjeta centrada, como la web: encabezado oscuro con el nombre a la izquierda y el logo a la derecha, y pie
+// con los datos de contacto. Tablas y estilos en línea: es lo único que respetan Gmail y Outlook.
+const borde = "#d6e0e2";
 const html = `
-<div style="font-family:Arial,sans-serif;max-width:560px;color:#12232b;line-height:1.5">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:20px">
-    <tr><td bgcolor="#15252f" style="background:#15252f;border-radius:12px;padding:18px 22px">
-      <a href="https://tuwebmedico.com" style="text-decoration:none">
-        <img src="https://tuwebmedico.com/email/logo.png" width="250" height="36" alt="tuwebmedico.com"
-          style="display:block;border:0;width:250px;height:36px;color:#5eead4;font-size:20px;font-weight:bold">
-      </a>
-    </td></tr>
-  </table>
-  <p>${saludo}</p>
-  <p>Esta es la cotización del paquete que armaste para tu página de ${escapar(q.especialidad.toLowerCase())}.</p>
-  <p style="font-size:13px;color:#5b6f77">Código: <b>${q.codigo}</b></p>
-  <table style="width:100%;border-collapse:collapse;border-top:1px solid #d6e0e2">${filas}${descuento}
-    <tr><td style="padding:10px 0;border-top:1px solid #d6e0e2"><b>Total, IVA incluido</b></td>
-        <td style="padding:10px 0;border-top:1px solid #d6e0e2;text-align:right"><b>${dinero(q.total)}</b></td></tr>
-  </table>
-  <p style="background:#e0f2ef;border-radius:8px;padding:10px 12px">
-    <b>Precio garantizado hasta el ${valida}</b>, aunque los precios cambien en el futuro. Si en ese tiempo bajan, se aplica el menor.
-  </p>
-  <p><b>Mantenimiento (opcional):</b> ${mantenimiento}</p>${resumen}
-  <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>
-    <a href="${q.propuesta}">${q.propuesta}</a></p>
-  <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp al +593 99 571 4425, citando el código ${q.codigo}.</p>
-  <p style="margin-top:24px">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span><br>
-    <a href="https://tuwebmedico.com" style="color:#0f766e;text-decoration:none;font-weight:bold">tuwebmedico.com</a></p>
-  <hr style="border:none;border-top:1px solid #d6e0e2;margin:28px 0">
-  <h2 style="font-size:18px">Borrador del contrato</h2>
-  <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
-  ${q.contratoHtml}
-</div>`;
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f6f6" style="background:#f3f6f6;border-collapse:collapse">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;border-collapse:separate;border:1px solid ${borde};border-radius:14px;background:#ffffff;font-family:Arial,sans-serif;color:#12232b;line-height:1.5">
+  <tr><td bgcolor="#15252f" style="background:#15252f;border-radius:13px 13px 0 0;padding:18px 24px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+      <td align="left" valign="middle">
+        <a href="https://tuwebmedico.com" style="text-decoration:none"><img src="https://tuwebmedico.com/email/wordmark.png" width="187" height="28" alt="tuwebmedico.com"
+          style="display:block;border:0;width:187px;height:28px;color:#5eead4;font-size:18px;font-weight:bold"></a>
+      </td>
+      <td align="right" valign="middle">
+        <img src="https://tuwebmedico.com/email/icon.png" width="29" height="32" alt="" style="display:block;border:0;width:29px;height:32px">
+      </td>
+    </tr></table>
+  </td></tr>
+  <tr><td style="padding:24px">
+    <p style="margin-top:0">${saludo}</p>
+    <p>Esta es la cotización del paquete que armaste para tu página de ${escapar(q.especialidad.toLowerCase())}.</p>
+    <p style="font-size:13px;color:#5b6f77">Código: <b>${q.codigo}</b></p>
+    <table width="100%" style="width:100%;border-collapse:collapse;border-top:1px solid ${borde}">${filas}${descuento}
+      <tr><td style="padding:10px 0;border-top:1px solid ${borde}"><b>Total, IVA incluido</b></td>
+          <td style="padding:10px 0;border-top:1px solid ${borde};text-align:right"><b>${dinero(q.total)}</b></td></tr>
+    </table>
+    <p style="background:#e0f2ef;border-radius:8px;padding:10px 12px">
+      <b>Precio garantizado hasta el ${valida}</b>, aunque los precios cambien en el futuro. Si en ese tiempo bajan, se aplica el menor.
+    </p>
+    <p><b>Mantenimiento (opcional):</b> ${mantenimiento}</p>${resumen}
+    <p>El detalle de cada módulo, los tiempos y la forma de pago están en tu propuesta:<br>
+      <a href="${q.propuesta}" style="color:#0f766e">${q.propuesta}</a></p>
+    <p>Para contratar o resolver dudas, responde este correo o escríbeme por WhatsApp, citando el código ${q.codigo}.</p>
+    <p style="margin-top:24px;margin-bottom:0">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
+    <hr style="border:none;border-top:1px solid ${borde};margin:28px 0">
+    <h2 style="font-size:18px;margin-top:0">Borrador del contrato</h2>
+    <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
+    ${q.contratoHtml}
+  </td></tr>
+  <tr><td bgcolor="#f7f9f9" style="background:#f7f9f9;border-top:1px solid ${borde};border-radius:0 0 13px 13px;padding:16px 24px;font-size:13px;color:#5b6f77;text-align:center">
+    <a href="https://tuwebmedico.com" style="color:#0f766e;font-weight:bold;text-decoration:none">tuwebmedico.com</a><br>
+    <a href="mailto:contacto@tuwebmedico.com" style="color:#5b6f77">contacto@tuwebmedico.com</a><br>
+    <a href="https://wa.me/593995714425" style="color:#5b6f77">WhatsApp +593 99 571 4425</a><br>
+    <span style="font-size:12px">Páginas web para cirujanos y médicos en Ecuador</span>
+  </td></tr>
+</table>
+</td></tr>
+</table>`;
 
 const texto = [
   q.nombre ? `Hola, ${q.nombre}:` : "Hola:",
