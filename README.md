@@ -1,5 +1,24 @@
 # Cotización automática con n8n · tuwebmedico.com
 
+> **English summary.** Production automation for [tuwebmedico.com](https://tuwebmedico.com), my business building websites
+> for surgeons and doctors in Ecuador. In the sales proposal, a doctor builds a package of modules in a pricing calculator and
+> requests a quote: it arrives by email within seconds, with the price guaranteed for 30 days, the chosen maintenance plan and
+> a contract draft for those exact modules.
+>
+> **Flow:** Next.js API route (validates input, recalculates prices server-side, generates the quote code) → n8n webhook
+> (header auth) → Google Sheets log (3 retries; if it fails, nothing is sent) → email via Resend (2 retries, Idempotency-Key)
+> → Slack notification. An error branch alerts me on Slack and the site offers the client WhatsApp instead; a separate error
+> workflow reports any other failure with a link to the execution.
+>
+> **Key decisions:** never trust prices from the browser (only module IDs are sent); secrets live in environment variables
+> and every credential has least privilege (Resend: send-only, own domain; Slack: a bot with `chat:write` only); each failure
+> is handled by its impact; idempotency so a retry never sends the same email twice; the failure path was tested by forcing
+> an error; DKIM, SPF and DMARC on the sending domain.
+>
+> **Files:** `nextjs/route.ts` (excerpt of the Next.js route; the main project is private), `n8n/cotizaciones.json` and
+> `n8n/alertas.json` (exported workflows, without credentials or test data), `GUIA.md` (step-by-step build guide, in Spanish).
+> The rest of this README is in Spanish.
+
 Automatización en producción de [tuwebmedico.com](https://tuwebmedico.com), mi negocio de páginas web para cirujanos y
 médicos. En la propuesta comercial, el doctor arma su paquete de módulos y pide la cotización por correo: le llega al
 instante con **precio garantizado por 30 días**, el mantenimiento que eligió y el **borrador del contrato** con esos
