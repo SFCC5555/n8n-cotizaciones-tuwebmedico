@@ -2,8 +2,7 @@
 
 > **English summary.** Production automation for [tuwebmedico.com](https://tuwebmedico.com), my business building websites
 > for surgeons and doctors in Ecuador. In the sales proposal, a doctor builds a package of modules in a pricing calculator and
-> requests a quote: it arrives by email within seconds, with the price guaranteed for 30 days, the chosen maintenance plan and
-> a contract draft for those exact modules.
+> requests a quote: it arrives by email within seconds, with the price guaranteed for 30 days and the chosen maintenance plan.
 >
 > **Flow:** Next.js API route (validates input, recalculates prices server-side, generates the quote code) → n8n webhook
 > (header auth) → Google Sheets log (3 retries; if it fails, nothing is sent) → email via Resend (2 retries, Idempotency-Key)
@@ -21,8 +20,7 @@
 
 Automatización en producción de [tuwebmedico.com](https://tuwebmedico.com), mi negocio de páginas web para cirujanos y
 médicos. En la propuesta comercial, el doctor arma su paquete de módulos y pide la cotización por correo: le llega al
-instante con **precio garantizado por 30 días**, el mantenimiento que eligió y el **borrador del contrato** con esos
-mismos módulos y precios.
+instante con **precio garantizado por 30 días** y el mantenimiento que eligió.
 
 **Pruébalo en vivo:** en [tuwebmedico.com/plastica/propuesta](https://tuwebmedico.com/plastica/propuesta) arma un paquete en
 la calculadora y pide la cotización; te llega en segundos.
@@ -57,7 +55,7 @@ Workflow «Alertas»: Error Trigger → Slack, con el nodo que falló, el error 
 
 ## Archivos
 
-- `nextjs/route.ts`: la ruta de Next.js que valida, arma la cotización y llama al webhook. Es un extracto del proyecto (privado): importa los precios y el contrato de otros archivos que no están aquí.
+- `nextjs/route.ts`: la ruta de Next.js que valida, arma la cotización y llama al webhook. Es un extracto del proyecto (privado): importa los precios de otros archivos que no están aquí.
 - `n8n/cotizaciones.json` y `n8n/alertas.json`: los flujos exportados de n8n (sin credenciales ni datos de prueba).
 - `GUIA.md`: cómo construir el flujo nodo por nodo.
 

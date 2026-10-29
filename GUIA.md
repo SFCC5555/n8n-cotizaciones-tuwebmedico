@@ -1,15 +1,15 @@
 # Cotización por correo con n8n
 
 El doctor arma su paquete en la calculadora de la propuesta (`/[esp]/propuesta`) y pide recibirlo por correo. Le llega
-una cotización con código, el mantenimiento que eligió (o «lo decido después») y el **borrador del contrato** con esos
-mismos módulos y precios, todo con **precio garantizado por 30 días**, aunque después cambien. Al mismo tiempo,
+una cotización con código y el mantenimiento que eligió (o «lo decido después»), con **precio garantizado por
+30 días**, aunque después cambien. Al mismo tiempo,
 la cotización queda registrada en Google Sheets y llega un aviso a Slack. Si algo falla, la página le ofrece WhatsApp.
 
 ```
 Calculadora (navegador)
    │  correo + módulos elegidos
    ▼
-Next.js  POST /api/cotizacion        valida, recalcula precios, crea el código, la «foto» de precios y el contrato en HTML
+Next.js  POST /api/cotizacion        valida, recalcula precios, crea el código, y la «foto» de precios
    │  POST + encabezado X-Cotizacion-Secret
    ▼
 n8n  Webhook
@@ -64,7 +64,7 @@ Prueba: toca **Listen for test event** y, desde la terminal, manda una cotizaci�
 
 ```bash
 curl -X POST "URL_DE_PRUEBA" -H "Content-Type: application/json" -H "X-Cotizacion-Secret: TU_CLAVE" \
-  -d '{"codigo":"COT-261026-TEST","emitida":"2026-10-26T15:00:00Z","validaHasta":"2026-11-25T15:00:00Z","diasValidez":30,"nombre":"Dra. Prueba","correo":"TU_CORREO","especialidad":"Cirugía plástica y estética","propuesta":"https://tuwebmedico.com/plastica/propuesta","modulos":[{"id":"1","nombre":"Página profesional","precio":275},{"id":"2","nombre":"Procedimientos en detalle y en Google","precio":165}],"precioLista":440,"descuentoPorcentaje":0,"ahorro":0,"total":440,"base":382.61,"iva":57.39,"mantenimiento":{"tipo":"mensual","meses":3,"mensual":25,"total":75,"ahorro":0},"totalConMantenimiento":515,"contratoHtml":"<p>Aquí va el contrato.</p>"}'
+  -d '{"codigo":"COT-261026-TEST","emitida":"2026-10-26T15:00:00Z","validaHasta":"2026-11-25T15:00:00Z","diasValidez":30,"nombre":"Dra. Prueba","correo":"TU_CORREO","especialidad":"Cirugía plástica y estética","propuesta":"https://tuwebmedico.com/plastica/propuesta","modulos":[{"id":"1","nombre":"Página profesional","precio":275},{"id":"2","nombre":"Procedimientos en detalle y en Google","precio":165}],"precioLista":440,"descuentoPorcentaje":0,"ahorro":0,"total":440,"base":382.61,"iva":57.39,"mantenimiento":{"tipo":"mensual","meses":3,"mensual":25,"total":75,"ahorro":0},"totalConMantenimiento":515}'
 ```
 
 Antes de esta prueba, agrega ya un nodo **Respond to Webhook** (`{ "ok": true }`, con `true` sin comillas) conectado
@@ -79,8 +79,7 @@ esa parte, y antes de fijar los datos (Pin) edítalos para borrar `headers`: los
 El encabezado usa el nombre y el logo publicados con la web (`public/email/wordmark.png` e `icon.png`, PNG porque Gmail no muestra SVG ni fuentes web;
 en doble resolución para pantallas nítidas). Si el correo bloquea imágenes, se ve el texto alternativo en turquesa.
 Mode: **Run Once for Each Item**. Este nodo arma el correo. Se escapa el nombre antes de meterlo en el HTML: es texto
-que escribió una persona y podría traer etiquetas. El contrato (`contratoHtml`) no se escapa porque lo arma tu propio
-servidor con el componente del contrato, no lo escribe el usuario.
+que escribió una persona y podría traer etiquetas.
 
 ```js
 const q = $json.body;
@@ -156,10 +155,6 @@ const html = `
       </td>
     </tr></table>
     <p style="margin-top:28px;margin-bottom:0">Fernando Carrasco<br><span style="color:#5b6f77">Desarrollador de software</span></p>
-    <hr style="border:none;border-top:1px solid ${borde};margin:28px 0">
-    <h2 style="font-size:18px;margin-top:0">Borrador del contrato</h2>
-    <p style="font-size:13px;color:#5b6f77">Con los módulos y precios de esta cotización. Se completa con tus datos y se firma al confirmar.</p>
-    ${q.contratoHtml}
   </td></tr>
   <tr><td bgcolor="#f7f9f9" style="background:#f7f9f9;border-top:1px solid ${borde};border-radius:0 0 13px 13px;padding:16px 24px;font-size:13px;color:#5b6f77;text-align:center">
     <span style="white-space:nowrap"><a href="https://tuwebmedico.com" style="color:#0f766e;font-weight:bold;text-decoration:none">tuwebmedico.com</a></span>
@@ -180,7 +175,6 @@ const texto = [
   `Mantenimiento (opcional): ${mantenimiento}`,
   mt.tipo === "despues" ? "" : `Desarrollo ${dinero(q.total)} + mantenimiento ${dinero(mt.total)} = ${dinero(q.totalConMantenimiento)}`,
   `Precio garantizado hasta el ${valida}.`,
-  "El borrador del contrato va en la versión HTML de este correo.",
   `Tu propuesta: ${q.propuesta}`,
   `WhatsApp: https://wa.me/593995714425 · Fernando Carrasco, tuwebmedico.com`,
 ].filter(Boolean).join("\n");

@@ -9,12 +9,11 @@ import {
   type ModuleId,
 } from "@/lib/modules";
 import { getSpecialty } from "@/lib/specialties";
-import { ContractDocument } from "@/app/[esp]/propuesta/contrato/ContractDocument";
 
 // Cotización por correo desde la calculadora de la propuesta.
 // La página manda solo el correo, los módulos y el mantenimiento elegidos; aquí se recalculan los precios con los de modules.ts (nunca se
 // confía en un precio que venga del navegador), se arma la «foto» de la cotización y se envía al flujo de n8n, que la
-// guarda en Google Sheets, manda el correo al doctor (con el borrador del contrato) y avisa por Slack. La dirección del webhook y su clave secreta
+// guarda en Google Sheets, manda el correo al doctor y avisa por Slack. La dirección del webhook y su clave secreta
 // viven solo en el servidor (variables de entorno), nunca en el navegador.
 
 const VALID_DAYS = 30;
@@ -47,8 +46,6 @@ function maintenanceChoice(raw: unknown, ids: ModuleId[]): MaintenanceChoice | n
   if (m.tipo === "mensual" && Number.isInteger(months) && months >= 1 && months <= maxMonthlyMonths(ids)) return { kind: "mensual", months };
   return null;
 }
-
-const longDate = (d: Date) => d.toLocaleDateString("es-EC", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Guayaquil" });
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
@@ -86,12 +83,6 @@ export async function POST(request: Request) {
   const code = quoteCode(now);
   const upkeep = maintenanceQuote(ids, choice);
   const proposal = `https://tuwebmedico.com/${specialty.id}/propuesta`;
-  // El borrador del contrato con estos módulos y precios: va en el cuerpo del correo y queda fijo aunque después cambien.
-  // Import dinámico: Next.js no deja importar react-dom/server arriba del archivo en la app.
-  const { renderToStaticMarkup } = await import("react-dom/server");
-  const contract = renderToStaticMarkup(
-    ContractDocument({ chosen: ids, proposalHref: proposal, email: { code, validUntil: longDate(validUntil), maintenance: upkeep } }),
-  );
 
   // La «foto» de la cotización: si después cambian los precios, esta se respeta hasta su fecha de vencimiento.
   const quote = {
@@ -119,7 +110,6 @@ export async function POST(request: Request) {
     },
     // Desarrollo más el mantenimiento elegido (se pagan en momentos distintos; el correo lo aclara).
     totalConMantenimiento: total + upkeep.total,
-    contratoHtml: contract,
   };
 
   try {
